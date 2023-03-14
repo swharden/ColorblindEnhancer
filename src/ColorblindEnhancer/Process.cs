@@ -10,7 +10,7 @@ namespace ColorblindEnhancer;
 
 internal static class Process
 {
-    private static byte[,,] ImageToArray(Bitmap bmp)
+    public static byte[,,] ImageToArray(Bitmap bmp)
     {
         int bytesPerPixel = Image.GetPixelFormatSize(bmp.PixelFormat) / 8;
         Rectangle rect = new(0, 0, bmp.Width, bmp.Height);
@@ -35,7 +35,7 @@ internal static class Process
         return pixelValues;
     }
 
-    private static Bitmap ArrayToImage(byte[,,] pixelArray)
+    public static Bitmap ArrayToImage(byte[,,] pixelArray)
     {
         int width = pixelArray.GetLength(1);
         int height = pixelArray.GetLength(0);
@@ -66,21 +66,5 @@ internal static class Process
         gfx2.DrawImage(bmp, 0, 0);
 
         return bmp2;
-    }
-
-    public static Bitmap Grayscale(Bitmap bmp)
-    {
-        byte[,,] bytes = ImageToArray(bmp);
-        for (int y = 0; y < bytes.GetLength(0); y++)
-        {
-            for (int x = 0; x < bytes.GetLength(1); x++)
-            {
-                byte val = (byte)((bytes[y, x, 0] + bytes[y, x, 1] + bytes[y, x, 2]) / 3);
-                bytes[y, x, 0] = val;
-                bytes[y, x, 1] = val;
-                bytes[y, x, 2] = val;
-            }
-        }
-        return ArrayToImage(bytes);
     }
 }

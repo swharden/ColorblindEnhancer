@@ -38,6 +38,7 @@ partial class Form1
             this.label1 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.cbReverse = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
@@ -119,6 +120,7 @@ partial class Form1
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(121, 23);
             this.comboBox1.TabIndex = 4;
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // label2
             // 
@@ -129,11 +131,23 @@ partial class Form1
             this.label2.TabIndex = 5;
             this.label2.Text = "Filter";
             // 
+            // cbReverse
+            // 
+            this.cbReverse.AutoSize = true;
+            this.cbReverse.Location = new System.Drawing.Point(454, 41);
+            this.cbReverse.Name = "cbReverse";
+            this.cbReverse.Size = new System.Drawing.Size(66, 19);
+            this.cbReverse.TabIndex = 6;
+            this.cbReverse.Text = "Reverse";
+            this.cbReverse.UseVisualStyleBackColor = true;
+            this.cbReverse.CheckedChanged += new System.EventHandler(this.cbReverse_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1015, 561);
+            this.Controls.Add(this.cbReverse);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.label1);
@@ -163,4 +177,5 @@ partial class Form1
     private Label label1;
     private ComboBox comboBox1;
     private Label label2;
+    private CheckBox cbReverse;
 }

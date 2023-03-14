@@ -1,3 +1,4 @@
+using ColorblindEnhancer.Filters;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 
@@ -5,15 +6,30 @@ namespace ColorblindEnhancer;
 
 public partial class Form1 : Form
 {
+    readonly IFilter[] Filters = FilterTools.GetFilters();
+
     public Form1()
     {
         InitializeComponent();
         this.TransparencyKey = Color.LimeGreen;
-        comboBox1.Items.Add("Grayscale");
+
+        foreach (IFilter filter in Filters)
+            comboBox1.Items.Add(filter.Name);
+
         comboBox1.SelectedIndex = 0;
     }
 
+    private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        UpdateCapture();
+    }
+
     private void timer1_Tick(object sender, EventArgs e)
+    {
+        UpdateCapture();
+    }
+
+    private void cbReverse_CheckedChanged(object sender, EventArgs e)
     {
         UpdateCapture();
     }
@@ -31,7 +47,19 @@ public partial class Form1 : Form
             destinationY: 0,
             blockRegionSize: pictureBox1.Size);
 
-        Bitmap filtered = Process.Grayscale(bmp);
+        IFilter filter = Filters[comboBox1.SelectedIndex];
+
+        if (filter is IReversible reversibleFilter)
+        {
+            cbReverse.Enabled = true;
+            reversibleFilter.IsReversed = cbReverse.Checked;
+        }
+        else
+        {
+            cbReverse.Enabled = false;
+        }
+
+        Bitmap filtered = FilterTools.Apply(bmp, filter);
 
         Image? oldImage = pictureBox2.Image;
         pictureBox2.Image = filtered;
