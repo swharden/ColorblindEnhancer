@@ -7,37 +7,43 @@ namespace ColorblindEnhancer;
 public partial class Form1 : Form
 {
     readonly IFilter[] Filters = FilterTools.GetFilters();
+    Bitmap? CaptureBmp;
 
     public Form1()
     {
         InitializeComponent();
-        this.TransparencyKey = Color.LimeGreen;
+        TransparencyKey = Color.LimeGreen;
 
         foreach (IFilter filter in Filters)
             comboBox1.Items.Add(filter.Name);
 
         comboBox1.SelectedIndex = 0;
+
+        Move += (s, e) => cbEnhance.Checked = false;
+        SizeChanged += (s, e) => cbEnhance.Checked = false;
+        comboBox1.SelectedIndexChanged += (s, e) => ShowProcessedImage();
+        cbReverse.CheckedChanged += (s, e) => ShowProcessedImage();
     }
 
-    private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+    private void cbEnhance_CheckedChanged(object sender, EventArgs e)
     {
-        UpdateCapture();
+        if (cbEnhance.Checked)
+        {
+            SaveCapturedImage();
+            ShowProcessedImage();
+        }
+        else
+        {
+            ShowTransparentBox();
+        }
     }
 
-    private void timer1_Tick(object sender, EventArgs e)
+    private void SaveCapturedImage()
     {
-        UpdateCapture();
-    }
+        var oldImage = CaptureBmp;
 
-    private void cbReverse_CheckedChanged(object sender, EventArgs e)
-    {
-        UpdateCapture();
-    }
-
-    private void UpdateCapture()
-    {
-        using Bitmap bmp = new(Width, Height, PixelFormat.Format32bppArgb);
-        using Graphics gfx = Graphics.FromImage(bmp);
+        CaptureBmp = new(Width, Height, PixelFormat.Format32bppArgb);
+        using Graphics gfx = Graphics.FromImage(CaptureBmp);
 
         Point sourcePoint = pictureBox1.PointToScreen(Point.Empty);
         gfx.CopyFromScreen(
@@ -47,23 +53,37 @@ public partial class Form1 : Form
             destinationY: 0,
             blockRegionSize: pictureBox1.Size);
 
+        pictureBox1.Image = CaptureBmp;
+        oldImage?.Dispose();
+    }
+
+    private void ShowTransparentBox()
+    {
+        var oldImage = pictureBox1.Image;
+        pictureBox1.Image = null;
+        oldImage?.Dispose();
+    }
+
+    private void ShowProcessedImage()
+    {
+        if (!cbEnhance.Checked)
+            return;
+
+        if (CaptureBmp is null)
+            return;
+
         IFilter filter = Filters[comboBox1.SelectedIndex];
 
+        cbReverse.Enabled = filter is IReversible;
+
         if (filter is IReversible reversibleFilter)
-        {
-            cbReverse.Enabled = true;
             reversibleFilter.IsReversed = cbReverse.Checked;
-        }
-        else
-        {
-            cbReverse.Enabled = false;
-        }
 
-        Bitmap filtered = FilterTools.Apply(bmp, filter);
+        Bitmap filtered = FilterTools.Apply(CaptureBmp, filter);
+        var oldImage = pictureBox1.Image;
+        pictureBox1.Image = filtered;
 
-        Image? oldImage = pictureBox2.Image;
-        pictureBox2.Image = filtered;
-        pictureBox2.Invalidate();
-        oldImage?.Dispose();
+        if (oldImage != CaptureBmp)
+            oldImage?.Dispose();
     }
 }
